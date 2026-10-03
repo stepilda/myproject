@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgriLink — Farmer</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/agrilink.css">
+<style>
+/* ===== AI Farming Chatbot styles (added, scoped) ===== */
+.ai-chat-fab{
+  position:fixed;right:22px;bottom:22px;z-index:1050;
+  width:60px;height:60px;border-radius:50%;
+  background:linear-gradient(135deg,#2e7d32,#66bb6a);
+  color:#fff;border:none;box-shadow:0 10px 24px rgba(46,125,50,.35);
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+  transition:transform .18s ease;
+}
+.ai-chat-fab:hover{transform:translateY(-2px) scale(1.03);}
+.ai-chat-panel{
+  position:fixed;right:22px;bottom:96px;z-index:1051;
+  width:400px;max-width:calc(100vw - 32px);
+  height:600px;max-height:calc(100vh - 130px);
+  background:rgba(255,255,255,.98);
+  border-radius:18px;box-shadow:0 22px 60px rgba(0,0,0,.22);
+  display:none;flex-direction:column;overflow:hidden;
+  border:1px solid rgba(0,0,0,.06);
+}
+.ai-chat-panel.open{display:flex;}
+.ai-chat-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px;background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;
+}
+.ai-chat-head .title{display:flex;align-items:center;gap:8px;font-weight:700;font-size:1rem;}
+.ai-chat-head .title i{font-size:1.15rem;}
+.ai-chat-head .tools{display:flex;gap:6px;}
+.ai-chat-head .tools button{
+  background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:8px;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.ai-chat-head .tools button:hover{background:rgba(255,255,255,.3);}
+/* NEW: language selector row inside chatbot */
+.ai-chat-lang{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 14px;background:#f1f8f1;
+  border-bottom:1px solid rgba(0,0,0,.05);
+  font-size:.82rem;color:#2e7d32;
+}
+.ai-chat-lang label{margin:0;font-weight:600;}
+.ai-chat-lang select{
+  border:1px solid rgba(46,125,50,.3);background:#fff;color:#1f2b20;
+  border-radius:8px;padding:4px 8px;font-size:.82rem;outline:none;cursor:pointer;
+}
+.ai-chat-lang select:focus{border-color:#2e7d32;box-shadow:0 0 0 3px rgba(46,125,50,.12);}
+.ai-chat-body{
+  flex:1;overflow-y:auto;padding:14px;background:#f7faf7;
+  display:flex;flex-direction:column;gap:10px;
+}
+.ai-msg{max-width:86%;padding:10px 12px;border-radius:14px;font-size:.92rem;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;}
+.ai-msg.user{align-self:flex-end;background:#2e7d32;color:#fff;border-bottom-right-radius:4px;}
+.ai-msg.bot{align-self:flex-start;background:#fff;color:#1f2b20;border:1px solid rgba(0,0,0,.06);border-bottom-left-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+.ai-msg.bot strong{color:#2e7d32;}
+.ai-msg .meta{display:block;font-size:.72rem;opacity:.65;margin-top:4px;}
+.ai-typing{align-self:flex-start;background:#fff;border:1px solid rgba(0,0,0,.06);padding:10px 14px;border-radius:14px;display:flex;gap:4px;}
+.ai-typing span{width:7px;height:7px;background:#2e7d32;border-radius:50%;display:inline-block;animation:aiBounce 1.2s infinite;}
+.ai-typing span:nth-child(2){animation-delay:.15s;}
+.ai-typing span:nth-child(3){animation-delay:.3s;}
+@keyframes aiBounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+.ai-chat-foot{
+  border-top:1px solid rgba(0,0,0,.06);padding:10px;background:#fff;
+  display:flex;gap:8px;align-items:flex-end;
+}
+.ai-chat-foot textarea{
+  flex:1;resize:none;border:1px solid rgba(0,0,0,.12);border-radius:12px;
+  padding:9px 12px;font-size:.92rem;font-family:inherit;max-height:90px;min-height:42px;
+  outline:none;
+}
+.ai-chat-foot textarea:focus{border-color:#2e7d32;box-shadow:0 0 0 3px rgba(46,125,50,.12);}
+.ai-chat-foot .icon-btn{
+  width:42px;height:42px;border-radius:12px;border:none;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.05rem;
+}
+.ai-chat-foot .mic-btn{background:#e8f5e9;color:#2e7d32;}
+.ai-chat-foot .mic-btn.recording{background:#d32f2f;color:#fff;animation:aiPulse 1.1s infinite;}
+@keyframes aiPulse{0%{box-shadow:0 0 0 0 rgba(211,47,47,.5)}70%{box-shadow:0 0 0 12px rgba(211,47,47,0)}100%{box-shadow:0 0 0 0 rgba(211,47,47,0)}}
+.ai-chat-foot .send-btn{background:#2e7d32;color:#fff;}
+.ai-chat-foot .send-btn:disabled{opacity:.5;cursor:not-allowed;}
+.ai-chat-foot .icon-btn:not(:disabled):hover{filter:brightness(.95);}
+.ai-quick{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;background:#fff;border-top:1px solid rgba(0,0,0,.05);}
+.ai-quick button{
+  font-size:.78rem;padding:5px 10px;border-radius:999px;
+  border:1px solid rgba(46,125,50,.3);background:#f1f8f1;color:#2e7d32;cursor:pointer;
+}
+.ai-quick button:hover{background:#e2f1e3;}
+.ai-lang-hint{font-size:.72rem;color:#6b7a6c;padding:0 12px 6px;background:#fff;}
+@media (max-width:520px){
+  .ai-chat-panel{right:8px;left:8px;width:auto;bottom:88px;height:calc(100vh - 120px);}
+  .ai-chat-fab{right:16px;bottom:16px;}
+}
+</style>
+</head>
+<body>
+<div class="orb a"></div><div class="orb b"></div>
+<div class="leaf-fall"></div>
+
+<header class="site-header">
+  <div class="container header-row">
+    <a class="brand" href="/"><span class="brand-mark">🌾</span><span class="brand-word" data-i18n="brand">AgriLink</span></a>
+    <div class="header-actions">
+      <div class="dropdown">
+        <button class="lang-btn" type="button" data-bs-toggle="dropdown"><i class="bi bi-globe2"></i> <span id="langLabel">English</span></button>
+        <ul class="dropdown-menu lang-menu">
+          <li><button class="dropdown-item lang-option" type="button" data-lang="ta">தமிழ்</button></li>
+          <li><button class="dropdown-item lang-option" type="button" data-lang="en">English</button></li>
+          <li><button class="dropdown-item lang-option" type="button" data-lang="hi">हिन्दी</button></li>
+        </ul>
+      </div>
+      <a class="btn-ghost" href="/dashboard" data-i18n="nav.dashboard">Dashboard</a>
+      <a class="btn-ghost" href="/buyer" data-i18n="nav.market">Marketplace</a>
+      <button class="profile-btn" type="button" data-bs-toggle="modal" data-bs-target="#profileModal"><i class="bi bi-person-fill"></i></button>
+    </div>
+  </div>
+</header>
+
+<main class="page-wrap">
+  <section class="welcome">
+    <div class="container">
+      <h1 id="welcomeName" data-i18n="farmer.welcome">Welcome back</h1>
+      <p class="section-sub" data-i18n="farmer.sub">Your basic farm profile, crop production details, and listings for sale.</p>
+      <div class="summary-cards">
+        <div class="summary-card glass-card"><div class="label" data-i18n="sum.land">Land size</div><div class="value" id="sumLand">—</div></div>
+        <div class="summary-card glass-card"><div class="label" data-i18n="sum.prod">Production records</div><div class="value" id="sumProd">—</div></div>
+        <div class="summary-card glass-card"><div class="label" data-i18n="sum.listings">Active listings</div><div class="value" id="sumListingCount">—</div></div>
+        <div class="summary-card glass-card"><div class="label" data-i18n="sum.mobile">Mobile status</div><div class="value" id="sumMobileStatus">—</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="listings-section">
+    <div class="container">
+      <div class="listings-head">
+        <div>
+          <h2 data-i18n="list.title">Your crop listings</h2>
+          <p class="section-sub" data-i18n="list.sub">Add each crop you are selling with quantity, date and price. Only verified farmers appear to buyers.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn-outline" type="button" id="prodBtn"><i class="bi bi-clipboard-data"></i> <span data-i18n="prod.btn">Crops production details</span></button>
+          <button class="btn-solid" type="button" id="addListingBtn"><i class="bi bi-plus-lg"></i> <span data-i18n="list.add">Add a crop listing</span></button>
+        </div>
+      </div>
+      <div id="listingGrid" class="listing-grid"></div>
+      <div id="emptyListings" class="empty-listings glass-card d-none">
+        <i class="bi bi-basket"></i>
+        <p class="mb-0 mt-2" data-i18n="list.empty">You haven't listed any crops yet.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="modal fade profile-modal" tabindex="-1" id="profileModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" data-i18n="prof.title">My farm profile</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="profile-tabs">
+          <button type="button" class="profile-tab active" data-ptab="view" data-i18n="prof.view">View</button>
+          <button type="button" class="profile-tab" data-ptab="edit" data-i18n="prof.edit">Edit</button>
+        </div>
+        <div class="profile-pane active" data-pane="view"><ul class="details-list" id="viewList"></ul></div>
+        <div class="profile-pane" data-pane="edit">
+          <form id="profileForm" onsubmit="return false;">
+            <div class="mobile-verify-box">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div><div class="field-label mt-0" data-i18n="mobile">Mobile</div><strong id="mobileDisplay">—</strong></div>
+                <span class="verify-badge unverified" id="verifyBadge">Not verified</span>
+              </div>
+              <button type="button" class="btn-outline mt-2" id="sendOtpBtn"><i class="bi bi-send"></i> <span data-i18n="otp.send">Send OTP</span></button>
+              <div class="otp-row" id="otpRow">
+                <input class="field-input" type="text" id="otpInput" data-i18n-placeholder="otp.enter" maxlength="6">
+                <button type="button" class="btn-solid" id="verifyOtpBtn" data-i18n="otp.verify">Verify OTP</button>
+              </div>
+              <p class="otp-hint" id="otpHint" style="font-size:.8rem;color:var(--muted);"></p>
+            </div>
+            <div class="section-divider" data-i18n="prof.farm">Farm details</div>
+            <label class="field-label" data-i18n="prof.land">Land size (acres)</label>
+            <input class="field-input" type="text" id="pLandSize">
+            <label class="field-label" data-i18n="prof.avail">Available land (acres)</label>
+            <input class="field-input" type="text" id="pAvailableLand">
+            <label class="field-label" data-i18n="prof.crops">Crops you grow</label>
+            <input class="field-input" type="text" id="pCrops">
+            <label class="field-label" data-i18n="prof.type">Farming type</label>
+            <div class="role-radio-group">
+              <label class="role-radio"><input type="radio" name="farmingType" value="own" checked> <span data-i18n="prof.own">Own</span></label>
+              <label class="role-radio"><input type="radio" name="farmingType" value="lease"> <span data-i18n="prof.lease">Lease</span></label>
+            </div>
+            <label class="field-label" data-i18n="prof.water">Water source</label>
+            <div class="role-radio-group">
+              <label class="role-radio"><input type="radio" name="waterSource" value="well" checked> <span data-i18n="prof.well">Well</span></label>
+              <label class="role-radio"><input type="radio" name="waterSource" value="borewell"> <span data-i18n="prof.bore">Borewell</span></label>
+              <label class="role-radio"><input type="radio" name="waterSource" value="rainfed"> <span data-i18n="prof.rain">Rainfed</span></label>
+            </div>
+            <label class="field-label" data-i18n="prof.method">Farming method</label>
+            <div class="role-radio-group">
+              <label class="role-radio"><input type="radio" name="farmingMethod" value="organic" checked> <span data-i18n="prof.org">Organic</span></label>
+              <label class="role-radio"><input type="radio" name="farmingMethod" value="normal"> <span data-i18n="prof.norm">Normal</span></label>
+            </div>
+            <label class="field-label" data-i18n="prof.cert">Certificate</label>
+            <input class="field-input" type="text" id="pCertificate">
+            <div class="section-divider" data-i18n="prof.contact">Contact</div>
+            <label class="field-label" data-i18n="prof.exp">Experience</label>
+            <input class="field-input" type="text" id="pExperience">
+            <label class="field-label" data-i18n="prof.alt">Alternate contact</label>
+            <input class="field-input" type="text" id="pAltMobile">
+            <label class="field-label" data-i18n="prof.lang">Preferred language</label>
+            <input class="field-input" type="text" id="pLanguage">
+            <label class="field-label" data-i18n="prof.addr">Full address</label>
+            <input class="field-input" type="text" id="pAddress">
+            <div class="status-note d-none" id="profileStatusNote"></div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline" data-bs-dismiss="modal" data-i18n="prof.close">Close</button>
+        <button type="button" class="btn-solid" id="saveProfileBtn" disabled data-i18n="prof.save">Save profile</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade listing-modal" tabindex="-1" id="prodModal">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" data-i18n="prod.title">Crops production details</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="section-sub" data-i18n="prod.sub">Add multiple crops with quantity, expected quantity and date.</p>
+        <div id="prodSaved" class="mb-3"></div>
+        <div id="prodRows"></div>
+        <button type="button" class="btn-ghost mt-2" id="addProdRow"><i class="bi bi-plus"></i> <span data-i18n="prod.addrow">Add another crop</span></button>
+        <div class="status-note d-none" id="prodStatusNote"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline" data-bs-dismiss="modal" data-i18n="prof.close">Close</button>
+        <button type="button" class="btn-solid" id="saveProdBtn" data-i18n="prod.save">Save crops</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade listing-modal" tabindex="-1" id="listingModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="listingModalLabel" data-i18n="list.add">Add a crop listing</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="listingForm" onsubmit="return false;">
+          <input type="hidden" id="lListingId" value="">
+          <label class="field-label" data-i18n="prod.crop">Crop</label>
+          <input class="field-input" type="text" id="lCropName">
+          <div class="field-row">
+            <div><label class="field-label" data-i18n="prod.qty">Quantity</label><input class="field-input" type="text" id="lQuantity"></div>
+            <div><label class="field-label">Unit</label>
+              <select class="field-input" id="lUnit"><option>kg</option><option>quintal</option><option>tonne</option><option>bag</option></select>
+            </div>
+          </div>
+          <div class="field-row">
+            <div><label class="field-label" data-i18n="prod.date">Date</label><input class="field-input" type="date" id="lProductionDate"></div>
+            <div><label class="field-label" data-i18n="market.ready">Ready to sell</label><input class="field-input" type="date" id="lReadyDate"></div>
+          </div>
+          <div class="field-row">
+            <div><label class="field-label">₹</label><input class="field-input" type="text" id="lPriceAmount"></div>
+            <div><label class="field-label">Price unit</label>
+              <select class="field-input" id="lPriceUnit"><option>per kg</option><option>per quintal</option><option>per tonne</option></select>
+            </div>
+          </div>
+          <label class="field-label" data-i18n="prof.method">Farming method</label>
+          <div class="role-radio-group">
+            <label class="role-radio"><input type="radio" name="lFarmingMethod" value="organic" checked> <span data-i18n="prof.org">Organic</span></label>
+            <label class="role-radio"><input type="radio" name="lFarmingMethod" value="normal"> <span data-i18n="prof.norm">Normal</span></label>
+          </div>
+          <label class="field-label">Status</label>
+          <select class="field-input" id="lStatus"><option value="available">Available</option><option value="paused">Paused</option><option value="sold">Sold</option></select>
+          <input class="field-input mt-2" type="text" id="lNotes" placeholder="Notes">
+          <div class="status-note d-none" id="listingStatusNote"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline btn-danger" id="deleteListingBtn" style="display:none;">Delete</button>
+        <button type="button" class="btn-outline" data-bs-dismiss="modal" data-i18n="prof.close">Close</button>
+        <button type="button" class="btn-solid" id="saveListingBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== AI FARMING CHATBOT (added) ===================== -->
+<button class="ai-chat-fab" id="aiChatFab" type="button" title="AI Farming Assistant" aria-label="Open AI Farming Assistant">
+  <i class="bi bi-robot"></i>
+</button>
+
+<div class="ai-chat-panel" id="aiChatPanel" role="dialog" aria-label="AI Farming Assistant">
+  <div class="ai-chat-head">
+    <div class="title"><i class="bi bi-robot"></i> <span id="aiChatTitle">AI Farming Assistant</span></div>
+    <div class="tools">
+      <button type="button" id="aiChatClear" title="Clear chat"><i class="bi bi-eraser"></i></button>
+      <button type="button" id="aiChatClose" title="Close"><i class="bi bi-x-lg"></i></button>
+    </div>
+  </div>
+
+  <!-- NEW: language selector inside chatbot -->
+  <div class="ai-chat-lang">
+    <label for="aiChatLang"><i class="bi bi-translate"></i> Language:</label>
+    <select id="aiChatLang">
+      <option value="en">English</option>
+      <option value="ta">தமிழ்</option>
+      <option value="hi">हिंदी</option>
+    </select>
+  </div>
+  <!-- END NEW -->
+
+  <div class="ai-chat-body" id="aiChatBody"></div>
+  <div class="ai-quick" id="aiQuickChips">
+    <button type="button" data-q="Which seed should I use for my land?">Which seed for my land?</button>
+    <button type="button" data-q="Which crop should I grow this season?">Crop for this season</button>
+    <button type="button" data-q="How much water is required for my crop?">Water requirement</button>
+    <button type="button" data-q="What should I grow next?">What next?</button>
+  </div>
+  <div class="ai-lang-hint" id="aiLangHint"></div>
+  <div class="ai-chat-foot">
+    <button class="icon-btn mic-btn" id="aiMicBtn" type="button" title="Voice input"><i class="bi bi-mic-fill"></i></button>
+    <textarea id="aiChatInput" rows="1" placeholder="Ask about seeds, crops, water, soil, weather..."></textarea>
+    <button class="icon-btn send-btn" id="aiSendBtn" type="button" title="Send"><i class="bi bi-send-fill"></i></button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/i18n.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var farmerId = window.location.pathname.split('/').filter(Boolean).pop();
+  var farmerData = null;
+  var listingModal = new bootstrap.Modal(document.getElementById('listingModal'));
+  var prodModal = new bootstrap.Modal(document.getElementById('prodModal'));
+  var TYPE = { own: 'prof.own', lease: 'prof.lease' };
+  var WATER = { well: 'prof.well', borewell: 'prof.bore', rainfed: 'prof.rain' };
+  var METHOD = { organic: 'prof.org', normal: 'prof.norm' };
+
+  document.querySelectorAll('.profile-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.profile-tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
+      document.querySelectorAll('.profile-pane').forEach(function (p) { p.classList.toggle('active', p.dataset.pane === tab.dataset.ptab); });
+    });
+  });
+
+  function row(label, value) {
+    return '<li><span>' + label + '</span><span>' + (value || '—') + '</span></li>';
+  }
+  function setRadio(name, value) {
+    var radios = document.querySelectorAll('input[name="' + name + '"]');
+    radios.forEach(function (r) { r.checked = (r.value === value); });
+    if (!value && radios[0]) radios[0].checked = true;
+  }
+
+  function populateView(d) {
+    document.getElementById('viewList').innerHTML = ''
+      + row(AgriI18n.t('name'), d.name)
+      + row(AgriI18n.t('mobile'), d.mobile + (d.mobile_verified ? ' (' + AgriI18n.t('verified') + ')' : ' (' + AgriI18n.t('unverified') + ')'))
+      + row(AgriI18n.t('email'), d.email)
+      + row(AgriI18n.t('location'), d.location)
+      + row(AgriI18n.t('prof.land'), d.land_size_acres ? d.land_size_acres + ' ' + AgriI18n.t('acres') : '')
+      + row(AgriI18n.t('prof.avail'), d.available_land ? d.available_land + ' ' + AgriI18n.t('acres') : '')
+      + row(AgriI18n.t('prof.crops'), d.crops)
+      + row(AgriI18n.t('prof.type'), AgriI18n.t(TYPE[d.farming_type] || ''))
+      + row(AgriI18n.t('prof.water'), AgriI18n.t(WATER[d.water_source] || ''))
+      + row(AgriI18n.t('prof.method'), AgriI18n.t(METHOD[d.farming_method] || ''))
+      + row(AgriI18n.t('prof.cert'), d.certificate_number)
+      + row(AgriI18n.t('prof.exp'), d.experience_years ? d.experience_years + ' ' + AgriI18n.t('years') : '')
+      + row(AgriI18n.t('prof.alt'), d.alternate_mobile)
+      + row(AgriI18n.t('prof.lang'), d.preferred_language)
+      + row(AgriI18n.t('prof.addr'), d.address_detail);
+  }
+
+  var verifyBadge = document.getElementById('verifyBadge');
+  var saveBtn = document.getElementById('saveProfileBtn');
+  var otpRow = document.getElementById('otpRow');
+  function setVerifiedUI(verified) {
+    if (verified) {
+      verifyBadge.className = 'verify-badge verified';
+      verifyBadge.textContent = AgriI18n.t('verified');
+      saveBtn.disabled = false;
+      otpRow.classList.remove('show');
+      document.getElementById('sendOtpBtn').classList.add('d-none');
+    } else {
+      verifyBadge.className = 'verify-badge unverified';
+      verifyBadge.textContent = AgriI18n.t('unverified');
+      saveBtn.disabled = true;
+      document.getElementById('sendOtpBtn').classList.remove('d-none');
+    }
+  }
+
+  function populateEdit(d) {
+    document.getElementById('mobileDisplay').textContent = d.mobile;
+    document.getElementById('pLandSize').value = d.land_size_acres || '';
+    document.getElementById('pAvailableLand').value = d.available_land || '';
+    document.getElementById('pCrops').value = d.crops || '';
+    document.getElementById('pCertificate').value = d.certificate_number || '';
+    document.getElementById('pExperience').value = d.experience_years || '';
+    document.getElementById('pAltMobile').value = d.alternate_mobile || '';
+    document.getElementById('pLanguage').value = d.preferred_language || '';
+    document.getElementById('pAddress').value = d.address_detail || '';
+    setRadio('farmingType', d.farming_type);
+    setRadio('waterSource', d.water_source);
+    setRadio('farmingMethod', d.farming_method);
+    setVerifiedUI(!!d.mobile_verified);
+  }
+
+  function loadFarmer() {
+    fetch('/api/farmer/' + farmerId).then(function (r) { return r.json(); }).then(function (data) {
+      farmerData = data;
+      populateView(data);
+      populateEdit(data);
+      document.getElementById('sumLand').textContent = data.land_size_acres ? data.land_size_acres + ' ' + AgriI18n.t('acres') : '—';
+      document.getElementById('sumMobileStatus').textContent = data.mobile_verified ? AgriI18n.t('verified') : AgriI18n.t('unverified');
+      document.getElementById('welcomeName').textContent = AgriI18n.t('farmer.welcome') + ', ' + data.name;
+    });
+  }
+
+  document.addEventListener('agrilink:lang', function () { if (farmerData) { populateView(farmerData); populateEdit(farmerData); loadFarmer(); loadListings(); loadProductions(); } });
+
+  document.getElementById('sendOtpBtn').addEventListener('click', function () {
+    var btn = this; btn.disabled = true;
+    fetch('/api/send-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mobile: farmerData.mobile }) })
+      .then(function (r) { return r.json(); }).then(function (data) {
+        btn.disabled = false;
+        if (data.success) { otpRow.classList.add('show'); document.getElementById('otpHint').textContent = 'OTP: ' + data.demo_otp; }
+        else document.getElementById('otpHint').textContent = data.error || 'Error';
+      }).catch(function () { btn.disabled = false; });
+  });
+  document.getElementById('verifyOtpBtn').addEventListener('click', function () {
+    fetch('/api/verify-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile: farmerData.mobile, otp: document.getElementById('otpInput').value.trim(), farmerId: farmerId }) })
+      .then(function (r) { return r.json(); }).then(function (data) {
+        if (data.success) { document.getElementById('otpHint').textContent = AgriI18n.t('verified'); setVerifiedUI(true); }
+        else document.getElementById('otpHint').textContent = data.error || 'Invalid OTP';
+      });
+  });
+  document.getElementById('saveProfileBtn').addEventListener('click', function () {
+    var payload = {
+      landSizeAcres: document.getElementById('pLandSize').value.trim(),
+      availableLand: document.getElementById('pAvailableLand').value.trim(),
+      crops: document.getElementById('pCrops').value.trim(),
+      farmingType: document.querySelector('input[name="farmingType"]:checked').value,
+      waterSource: document.querySelector('input[name="waterSource"]:checked').value,
+      farmingMethod: document.querySelector('input[name="farmingMethod"]:checked').value,
+      certificateNumber: document.getElementById('pCertificate').value.trim(),
+      experienceYears: document.getElementById('pExperience').value.trim(),
+      alternateMobile: document.getElementById('pAltMobile').value.trim(),
+      preferredLanguage: document.getElementById('pLanguage').value.trim(),
+      addressDetail: document.getElementById('pAddress').value.trim()
+    };
+    var btn = this; btn.disabled = true;
+    fetch('/api/farmer/' + farmerId + '/profile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+      .then(function (result) {
+        btn.disabled = false;
+        var n = document.getElementById('profileStatusNote'); n.classList.remove('d-none');
+        if (result.ok && result.data.success) { n.className = 'status-note ok'; n.textContent = 'Saved'; loadFarmer(); document.querySelector('.profile-tab[data-ptab="view"]').click(); }
+        else { n.className = 'status-note error'; n.textContent = result.data.error || 'Error'; }
+      }).catch(function () { btn.disabled = false; });
+  });
+
+  function prodRowHtml() {
+    return '<div class="prod-row">'
+      + '<div><label class="field-label">' + AgriI18n.t('prod.crop') + '</label><input class="field-input p-crop"></div>'
+      + '<div><label class="field-label">' + AgriI18n.t('prod.qty') + '</label><input class="field-input p-qty"></div>'
+      + '<div><label class="field-label">' + AgriI18n.t('prod.eqty') + '</label><input class="field-input p-eqty"></div>'
+      + '<div><label class="field-label">' + AgriI18n.t('prod.date') + '</label><input class="field-input p-date" type="date"></div>'
+      + '<button type="button" class="btn-ghost btn-danger remove-row">✕</button></div>';
+  }
+  function addProdRow() {
+    var wrap = document.getElementById('prodRows');
+    wrap.insertAdjacentHTML('beforeend', prodRowHtml());
+    wrap.lastElementChild.querySelector('.remove-row').addEventListener('click', function () { this.closest('.prod-row').remove(); });
+  }
+  document.getElementById('addProdRow').addEventListener('click', addProdRow);
+  document.getElementById('prodBtn').addEventListener('click', function () { loadProductions(); document.getElementById('prodRows').innerHTML = ''; addProdRow(); prodModal.show(); });
+
+  function loadProductions() {
+    fetch('/api/farmer/' + farmerId + '/productions').then(function (r) { return r.json(); }).then(function (rows) {
+      document.getElementById('sumProd').textContent = rows.length;
+      var box = document.getElementById('prodSaved');
+      if (!rows.length) { box.innerHTML = '<p class="section-sub">' + AgriI18n.t('prod.empty') + '</p>'; return; }
+      box.innerHTML = rows.map(function (p) {
+        return '<div class="dash-item glass-card mb-2"><div><strong>' + p.crop_name + '</strong><div style="font-size:.82rem;color:var(--muted)">'
+          + AgriI18n.t('prod.qty') + ': ' + p.quantity + ' · ' + AgriI18n.t('prod.eqty') + ': ' + (p.expected_qty || '—') + ' · ' + p.production_date
+          + '</div></div><button class="btn-ghost btn-danger del-prod" data-id="' + p.id + '">✕</button></div>';
+      }).join('');
+      box.querySelectorAll('.del-prod').forEach(function (b) {
+        b.addEventListener('click', function () {
+          fetch('/api/farmer/' + farmerId + '/productions/' + b.dataset.id, { method: 'DELETE' }).then(loadProductions);
+        });
+      });
+    });
+  }
+  document.getElementById('saveProdBtn').addEventListener('click', function () {
+    var rows = Array.from(document.querySelectorAll('#prodRows .prod-row'));
+    var jobs = rows.map(function (row) {
+      var crop = row.querySelector('.p-crop').value.trim();
+      var qty = row.querySelector('.p-qty').value.trim();
+      var date = row.querySelector('.p-date').value;
+      if (!crop || !qty || !date) return Promise.resolve();
+      return fetch('/api/farmer/' + farmerId + '/productions', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cropName: crop, quantity: qty, expectedQty: row.querySelector('.p-eqty').value.trim(), productionDate: date })
+      });
+    });
+    Promise.all(jobs).then(function () {
+      document.getElementById('prodRows').innerHTML = ''; addProdRow();
+      loadProductions();
+    });
+  });
+
+  function loadListings() {
+    fetch('/api/farmer/' + farmerId + '/listings').then(function (r) { return r.json(); }).then(renderListings);
+  }
+  function renderListings(listings) {
+    document.getElementById('sumListingCount').textContent = listings.length;
+    var grid = document.getElementById('listingGrid');
+    var empty = document.getElementById('emptyListings');
+    if (!listings.length) { grid.innerHTML = ''; empty.classList.remove('d-none'); return; }
+    empty.classList.add('d-none');
+    grid.innerHTML = listings.map(function (l) {
+      return '<div class="listing-card glass-card"><span class="status-pill ' + l.status + '">' + l.status + '</span>'
+        + '<div class="crop-name">' + l.crop_name + '</div><div class="price-tag">₹' + l.price_amount + ' ' + l.price_unit + '</div>'
+        + '<div class="listing-meta"><span><strong>' + l.quantity + ' ' + l.unit + '</strong></span>'
+        + '<span>' + AgriI18n.t('market.ready') + ': <strong>' + l.ready_date + '</strong></span></div>'
+        + '<button type="button" class="btn-ghost edit-listing" data-id="' + l.id + '">Edit</button></div>';
+    }).join('');
+    grid.querySelectorAll('.edit-listing').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var listing = listings.find(function (l) { return String(l.id) === btn.dataset.id; });
+        if (listing) openListingModal(listing);
+      });
+    });
+  }
+  function resetListingForm() {
+    ['lListingId','lCropName','lQuantity','lProductionDate','lReadyDate','lPriceAmount','lNotes'].forEach(function (id) { document.getElementById(id).value = ''; });
+    document.getElementById('lUnit').value = 'kg'; document.getElementById('lPriceUnit').value = 'per kg'; document.getElementById('lStatus').value = 'available';
+    setRadio('lFarmingMethod', 'organic');
+    document.getElementById('deleteListingBtn').style.display = 'none';
+  }
+  function openListingModal(listing) {
+    resetListingForm();
+    if (listing) {
+      document.getElementById('lListingId').value = listing.id;
+      document.getElementById('lCropName').value = listing.crop_name || '';
+      document.getElementById('lQuantity').value = listing.quantity || '';
+      document.getElementById('lUnit').value = listing.unit || 'kg';
+      document.getElementById('lProductionDate').value = listing.production_date || '';
+      document.getElementById('lReadyDate').value = listing.ready_date || '';
+      document.getElementById('lPriceAmount').value = listing.price_amount || '';
+      document.getElementById('lPriceUnit').value = listing.price_unit || 'per kg';
+      document.getElementById('lStatus').value = listing.status || 'available';
+      document.getElementById('lNotes').value = listing.notes || '';
+      setRadio('lFarmingMethod', listing.farming_method || 'organic');
+      document.getElementById('deleteListingBtn').style.display = 'inline-flex';
+    }
+    listingModal.show();
+  }
+  document.getElementById('addListingBtn').addEventListener('click', function () { openListingModal(null); });
+  document.getElementById('saveListingBtn').addEventListener('click', function () {
+    var id = document.getElementById('lListingId').value;
+    var payload = {
+      cropName: document.getElementById('lCropName').value.trim(), quantity: document.getElementById('lQuantity').value.trim(),
+      unit: document.getElementById('lUnit').value, productionDate: document.getElementById('lProductionDate').value,
+      readyDate: document.getElementById('lReadyDate').value, priceAmount: document.getElementById('lPriceAmount').value.trim(),
+      priceUnit: document.getElementById('lPriceUnit').value, farmingMethod: document.querySelector('input[name="lFarmingMethod"]:checked').value,
+      status: document.getElementById('lStatus').value, notes: document.getElementById('lNotes').value.trim()
+    };
+    fetch(id ? '/api/farmer/' + farmerId + '/listings/' + id : '/api/farmer/' + farmerId + '/listings', {
+      method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+      .then(function (result) { if (result.ok && result.data.success) { listingModal.hide(); loadListings(); } });
+  });
+  document.getElementById('deleteListingBtn').addEventListener('click', function () {
+    var id = document.getElementById('lListingId').value;
+    if (!id || !confirm('Remove?')) return;
+    fetch('/api/farmer/' + farmerId + '/listings/' + id, { method: 'DELETE' }).then(function () { listingModal.hide(); loadListings(); });
+  });
+
+  loadFarmer(); loadListings(); loadProductions();
+
+  /* ===================== AI FARMING CHATBOT (added) ===================== */
+  (function () {
+    var panel = document.getElementById('aiChatPanel');
+    var fab = document.getElementById('aiChatFab');
+    var body = document.getElementById('aiChatBody');
+    var input = document.getElementById('aiChatInput');
+    var sendBtn = document.getElementById('aiSendBtn');
+    var micBtn = document.getElementById('aiMicBtn');
+    var clearBtn = document.getElementById('aiChatClear');
+    var closeBtn = document.getElementById('aiChatClose');
+    var langHint = document.getElementById('aiLangHint');
+    var titleEl = document.getElementById('aiChatTitle');
+    var langSelect = document.getElementById('aiChatLang'); // NEW: language selector
+    var chatHistory = []; // {role:'user'|'bot', text:string}
+    var sending = false;
+    var chatLang = 'en'; // NEW: selected chat language (independent of page language)
+
+    var AI_TEXT = {
+      en: {
+        title: 'AI Farming Assistant',
+        placeholder: 'Ask about seeds, crops, water, soil, weather...',
+        hint: 'Responds in English.',
+        welcome: 'Namaste! I am your AgriLink farming assistant. Ask me about seeds, crops, water, soil or weather. I will use your farm data and other farmers\' records to guide you.',
+        thinking: 'Thinking...',
+        error: 'Sorry, I could not get a response right now. Please try again.',
+        micUnsupported: 'Voice input is not supported by this browser. Please type your question.',
+        listening: 'Listening... speak now.',
+        noSpeech: 'No speech detected. Please try again.',
+        langLabel: 'Language:'
+      },
+      ta: {
+        title: 'AI விவசாய உதவியாளர்',
+        placeholder: 'விதை, பயிர், நீர், மண், வானிலை பற்றி கேளுங்கள்...',
+        hint: 'தமிழில் பதிலளிக்கும்.',
+        welcome: 'வணக்கம்! நான் உங்கள் AgriLink விவசாய உதவியாளர். விதை, பயிர், நீர், மண் அல்லது வானிலை பற்றி கேளுங்கள். உங்கள் பண்ணை தரவு மற்றும் பிற விவசாயிகளின் பதிவுகளைப் பயன்படுத்தி வழிகாட்டுவேன்.',
+        thinking: 'சிந்திக்கிறது...',
+        error: 'மன்னிக்கவும், இப்போது பதில் கிடைக்கவில்லை. மீண்டும் முயற்சிக்கவும்.',
+        micUnsupported: 'இந்த உலாவியில் குரல் உள்ளீடு ஆதரிக்கப்படவில்லை. தயவுசெய்து தட்டச்சு செய்யவும்.',
+        listening: 'கேட்கிறது... இப்போது பேசுங்கள்.',
+        noSpeech: 'பேச்சு கண்டறியப்படவில்லை. மீண்டும் முயற்சிக்கவும்.',
+        langLabel: 'மொழி:'
+      },
+      hi: {
+        title: 'AI कृषि सहायक',
+        placeholder: 'बीज, फसल, पानी, मिट्टी, मौसम के बारे में पूछें...',
+        hint: 'हिंदी में उत्तर देगा।',
+        welcome: 'नमस्ते! मैं आपका AgriLink कृषि सहायक हूँ। बीज, फसल, पानी, मिट्टी या मौसम के बारे में पूछें। मैं आपके खेत के डेटा और अन्य किसानों के रिकॉर्ड का उपयोग करके मार्गदर्शन करूँगा।',
+        thinking: 'सोच रहा है...',
+        error: 'क्षमा करें, अभी उत्तर नहीं मिला। कृपया पुनः प्रयास करें।',
+        micUnsupported: 'इस ब्राउज़र में वॉइस इनपुट समर्थित नहीं है। कृपया टाइप करें।',
+        listening: 'सुन रहा है... अब बोलें।',
+        noSpeech: 'कोई आवाज़ नहीं मिली। पुनः प्रयास करें।',
+        langLabel: 'भाषा:'
+      }
+    };
+
+    // NEW: chat language is now driven only by the in-chat selector,
+    // not by the page-level i18n switcher.
+    function currentLang() { return AI_TEXT[chatLang] ? chatLang : 'en'; }
+    function t(key) { return AI_TEXT[currentLang()][key]; }
+
+    function refreshStaticText() {
+      titleEl.textContent = t('title');
+      input.placeholder = t('placeholder');
+      langHint.textContent = t('hint');
+    }
+
+    function scrollBottom() { body.scrollTop = body.scrollHeight; }
+
+    function addMessage(role, text, opts) {
+      opts = opts || {};
+      var wrap = document.createElement('div');
+      wrap.className = 'ai-msg ' + role;
+      var content = document.createElement('div');
+      content.innerHTML = formatBotText(text);
+      wrap.appendChild(content);
+      if (opts.meta) {
+        var m = document.createElement('span');
+        m.className = 'meta';
+        m.textContent = opts.meta;
+        wrap.appendChild(m);
+      }
+      body.appendChild(wrap);
+      scrollBottom();
+      return wrap;
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    }
+
+    function formatBotText(text) {
+      // Very light formatting: **bold**, newlines, simple bullets
+      var safe = escapeHtml(text || '');
+      safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      safe = safe.replace(/\n/g, '<br>');
+      return safe;
+    }
+
+    function showTyping() {
+      var el = document.createElement('div');
+      el.className = 'ai-typing';
+      el.id = 'aiTyping';
+      el.innerHTML = '<span></span><span></span><span></span>';
+      body.appendChild(el);
+      scrollBottom();
+    }
+    function hideTyping() {
+      var el = document.getElementById('aiTyping');
+      if (el) el.remove();
+    }
+
+    function greet() {
+      if (chatHistory.length === 0) {
+        addMessage('bot', t('welcome'));
+        chatHistory.push({ role: 'bot', text: t('welcome') });
+      }
+    }
+
+    function openPanel() {
+      panel.classList.add('open');
+      refreshStaticText();
+      greet();
+      setTimeout(function () { input.focus(); }, 60);
+    }
+    function closePanel() { panel.classList.remove('open'); }
+
+    fab.addEventListener('click', function () {
+      if (panel.classList.contains('open')) closePanel(); else openPanel();
+    });
+    closeBtn.addEventListener('click', closePanel);
+    clearBtn.addEventListener('click', function () {
+      body.innerHTML = '';
+      chatHistory = [];
+      greet();
+    });
+
+    // NEW: language selector change handler — future AI responses use new language.
+    langSelect.addEventListener('change', function () {
+      chatLang = langSelect.value;
+      refreshStaticText();
+      // Post a small system-style note so the user knows the switch happened.
+      var notice = chatLang === 'ta'
+        ? 'மொழி தமிழ் ஆக மாற்றப்பட்டது. அடுத்த பதில்கள் தமிழில் இருக்கும்.'
+        : (chatLang === 'hi'
+          ? 'भाषा हिंदी में बदल दी गई है। अगले उत्तर हिंदी में मिलेंगे।'
+          : 'Language switched to English. The next replies will be in English.');
+      addMessage('bot', notice);
+      chatHistory.push({ role: 'bot', text: notice });
+    });
+
+    // Auto-grow textarea
+    input.addEventListener('input', function () {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 90) + 'px';
+    });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    sendBtn.addEventListener('click', sendMessage);
+
+    document.getElementById('aiQuickChips').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-q]');
+      if (!b) return;
+      input.value = b.dataset.q;
+      sendMessage();
+    });
+
+    function sendMessage() {
+      if (sending) return;
+      var text = (input.value || '').trim();
+      if (!text) return;
+      addMessage('user', text);
+      chatHistory.push({ role: 'user', text: text });
+      input.value = '';
+      input.style.height = 'auto';
+      sending = true;
+      sendBtn.disabled = true;
+      showTyping();
+
+      fetch('/api/farming/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          farmerId: farmerId,
+          message: text,
+          language: currentLang(),
+          history: chatHistory.slice(-8)
+        })
+      })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+      .then(function (res) {
+        hideTyping();
+        sending = false;
+        sendBtn.disabled = false;
+        var reply = (res && res.data && res.data.reply) ? res.data.reply : t('error');
+        addMessage('bot', reply);
+        chatHistory.push({ role: 'bot', text: reply });
+      })
+      .catch(function () {
+        hideTyping();
+        sending = false;
+        sendBtn.disabled = false;
+        addMessage('bot', t('error'));
+      });
+    }
+
+    // ---- Voice input (Web Speech API) ----
+    var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var recognizer = null;
+    var recording = false;
+
+    function setRecording(on) {
+      recording = on;
+      micBtn.classList.toggle('recording', on);
+    }
+
+    function stopRecognizer() {
+      if (recognizer) { try { recognizer.stop(); } catch (e) {} }
+      setRecording(false);
+    }
+
+    micBtn.addEventListener('click', function () {
+      if (!SpeechRec) {
+        addMessage('bot', t('micUnsupported'));
+        return;
+      }
+      if (recording) { stopRecognizer(); return; }
+
+      try {
+        recognizer = new SpeechRec();
+        // Voice recognition language follows the in-chat selector.
+        recognizer.lang = chatLang === 'ta' ? 'ta-IN' : (chatLang === 'hi' ? 'hi-IN' : 'en-IN');
+        recognizer.interimResults = false;
+        recognizer.maxAlternatives = 1;
+        recognizer.continuous = false;
+
+        recognizer.onstart = function () {
+          setRecording(true);
+          langHint.textContent = t('listening');
+        };
+        recognizer.onerror = function () {
+          setRecording(false);
+          langHint.textContent = t('hint');
+        };
+        recognizer.onend = function () {
+          setRecording(false);
+          langHint.textContent = t('hint');
+        };
+        recognizer.onresult = function (evt) {
+          var transcript = '';
+          for (var i = evt.resultIndex; i < evt.results.length; i++) {
+            transcript += evt.results[i][0].transcript;
+          }
+          transcript = transcript.trim();
+          if (transcript) {
+            input.value = transcript;
+            sendMessage();
+          } else {
+            addMessage('bot', t('noSpeech'));
+          }
+        };
+        recognizer.start();
+      } catch (e) {
+        setRecording(false);
+        addMessage('bot', t('micUnsupported'));
+      }
+    });
+
+    // The in-chat selector is independent from the page-level i18n switcher,
+    // so we do not listen to 'agrilink:lang' here.
+    refreshStaticText();
+  })();
+});
+</script>
+</body>
+</html>

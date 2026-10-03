@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgriLink — Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/agrilink.css">
+</head>
+<body>
+<div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
+<div class="leaf-fall"></div>
+
+<header class="site-header">
+  <div class="container header-row">
+    <a class="brand" href="/"><span class="brand-mark">🌾</span><span class="brand-word" data-i18n="brand">AgriLink</span></a>
+    <div class="header-actions">
+      <div class="dropdown">
+        <button class="lang-btn" type="button" data-bs-toggle="dropdown"><i class="bi bi-globe2"></i> <span id="langLabel">English</span></button>
+        <ul class="dropdown-menu lang-menu">
+          <li><button class="dropdown-item lang-option" type="button" data-lang="ta">தமிழ்</button></li>
+          <li><button class="dropdown-item lang-option" type="button" data-lang="en">English</button></li>
+          <li><button class="dropdown-item lang-option" type="button" data-lang="hi">हिन्दी</button></li>
+        </ul>
+      </div>
+      <a class="btn-ghost" href="/buyer" data-i18n="nav.market">Marketplace</a>
+      <a class="btn-solid" href="/">Home</a>
+    </div>
+  </div>
+</header>
+
+<main class="page-wrap">
+  <section class="welcome">
+    <div class="container">
+      <div class="kicker">Live</div>
+      <h1 data-i18n="dash.title">AgriLink pulse</h1>
+      <p class="section-sub" data-i18n="dash.sub">Live snapshot of farmers, buyers and harvests moving through the platform.</p>
+      <div class="stat-grid">
+        <div class="stat-card glass-card"><div class="label" data-i18n="dash.farmers">Farmers</div><div class="value" id="nFarmers">—</div></div>
+        <div class="stat-card glass-card"><div class="label" data-i18n="dash.buyers">Buyers</div><div class="value" id="nBuyers">—</div></div>
+        <div class="stat-card glass-card"><div class="label" data-i18n="dash.verified">Verified farmers</div><div class="value" id="nVerified">—</div></div>
+        <div class="stat-card glass-card"><div class="label" data-i18n="dash.listed">Crops for sale</div><div class="value" id="nListed">—</div></div>
+        <div class="stat-card glass-card"><div class="label" data-i18n="dash.prod">Production records</div><div class="value" id="nProd">—</div></div>
+      </div>
+    </div>
+  </section>
+  <section class="listings-section">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="glass-card p-4">
+            <h2 data-i18n="dash.mix">Crop mix</h2>
+            <div id="cropBars" class="mt-3"></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="glass-card p-4">
+            <h2 data-i18n="dash.recent">Latest verified listings</h2>
+            <div id="recentList" class="dash-recent mt-3"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/i18n.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function render(data) {
+    document.getElementById('nFarmers').textContent = data.farmers;
+    document.getElementById('nBuyers').textContent = data.buyers;
+    document.getElementById('nVerified').textContent = data.verified_farmers;
+    document.getElementById('nListed').textContent = data.available_listings;
+    document.getElementById('nProd').textContent = data.productions;
+    var max = 1;
+    (data.crops || []).forEach(function (c) { if (c.count > max) max = c.count; });
+    document.getElementById('cropBars').innerHTML = (data.crops || []).map(function (c) {
+      var w = Math.round((c.count / max) * 100);
+      return '<div class="bar-row"><span style="min-width:90px;font-weight:700;">' + c.name + '</span><div class="bar-track"><div class="bar-fill" style="width:' + w + '%"></div></div><strong>' + c.count + '</strong></div>';
+    }).join('') || '<p class="section-sub">—</p>';
+    document.getElementById('recentList').innerHTML = (data.recent || []).map(function (r) {
+      return '<div class="dash-item glass-card"><div><strong>' + r.crop_name + '</strong><div style="font-size:.82rem;color:var(--muted)">' + r.farmer_name + ' · ' + (r.farmer_location || '') + '</div></div><div>₹' + r.price_amount + '</div></div>';
+    }).join('') || '<p class="section-sub">—</p>';
+  }
+  function load() { fetch('/api/dashboard').then(function (r) { return r.json(); }).then(render); }
+  document.addEventListener('agrilink:lang', load);
+  load();
+});
+</script>
+</body>
+</html>

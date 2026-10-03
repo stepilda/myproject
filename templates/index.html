@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgriLink — From field to first buyer</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/agrilink.css">
+</head>
+<body>
+<div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
+<div class="leaf-fall"></div>
+
+<header class="site-header">
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="brand" href="#top">
+        <span class="brand-mark">🌾</span>
+        <span class="brand-word" data-i18n="brand">AgriLink</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav main-links mx-lg-auto">
+          <li class="nav-item"><a class="nav-link" href="#services" data-i18n="nav.services">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="#how" data-i18n="nav.how">How it works</a></li>
+          <li class="nav-item"><a class="nav-link" href="/buyer" data-i18n="nav.market">Marketplace</a></li>
+          <li class="nav-item"><a class="nav-link" href="/dashboard" data-i18n="nav.dashboard">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact" data-i18n="nav.contact">Contact</a></li>
+        </ul>
+        <div class="nav-tools">
+          <div class="dropdown">
+            <button class="lang-btn" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-globe2"></i>
+              <span id="langLabel">English</span>
+            </button>
+            <ul class="dropdown-menu lang-menu">
+              <li><button class="dropdown-item lang-option" type="button" data-lang="ta">தமிழ்</button></li>
+              <li><button class="dropdown-item lang-option" type="button" data-lang="en">English</button></li>
+              <li><button class="dropdown-item lang-option" type="button" data-lang="hi">हिन्दी</button></li>
+            </ul>
+          </div>
+          <button class="profile-btn" type="button" data-bs-toggle="modal" data-bs-target="#authPanel">
+            <i class="bi bi-person"></i>
+            <span class="d-none d-md-inline" data-i18n="nav.login">Log in / Register</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<div class="modal fade auth-panel-modal" tabindex="-1" id="authPanel">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" data-i18n="auth.welcome">Welcome to AgriLink</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" data-tab="login" data-i18n="auth.login">Log in</button>
+          <button type="button" class="auth-tab" data-tab="register" data-i18n="auth.register">Register</button>
+        </div>
+        <form class="auth-form active" data-form="login" onsubmit="return false;">
+          <label class="field-label" data-i18n="auth.id">Mobile number or email</label>
+          <input class="field-input" type="text" id="loginId">
+          <label class="field-label" data-i18n="auth.pass">Password</label>
+          <input class="field-input" type="password" id="loginPass">
+          <button type="submit" class="btn-solid w-100 mt-3" id="loginSubmit" data-i18n="auth.login">Log in</button>
+          <p class="text-center mt-3" style="color:var(--muted);font-size:.88rem;">
+            <span data-i18n="auth.new">New here?</span>
+            <a href="#" class="switch-to-register" style="color:var(--leaf);font-weight:800;" data-i18n="auth.create">Create an account</a>
+          </p>
+        </form>
+        <form class="auth-form" data-form="register" onsubmit="return false;">
+          <label class="field-label" data-i18n="auth.full">Full name</label>
+          <input class="field-input" type="text" id="regName" required>
+          <label class="field-label" data-i18n="auth.mobile">Mobile number</label>
+          <input class="field-input" type="tel" id="regMobile" required>
+          <label class="field-label" data-i18n="auth.email">Email</label>
+          <input class="field-input" type="email" id="regEmail">
+          <label class="field-label" data-i18n="auth.location">Location</label>
+          <input class="field-input" type="text" id="regLocation" required>
+          <label class="field-label" data-i18n="auth.pass">Password</label>
+          <input class="field-input" type="password" id="regPass">
+          <label class="field-label" data-i18n="auth.iam">I am a</label>
+          <div class="role-radio-group">
+            <label class="role-radio"><input type="radio" name="regRole" value="farmer" checked> <span data-i18n="auth.farmer">Farmer</span></label>
+            <label class="role-radio"><input type="radio" name="regRole" value="buyer"> <span data-i18n="auth.buyer">Buyer</span></label>
+          </div>
+          <div id="farmerExtra">
+            <label class="field-label" data-i18n="auth.land">Land size</label>
+            <input class="field-input" type="text" id="regLand">
+            <label class="field-label" data-i18n="auth.crops">Crops you grow</label>
+            <input class="field-input" type="text" id="regCrops">
+          </div>
+          <div id="buyerExtra" class="d-none">
+            <label class="field-label" data-i18n="auth.biz">Business / FSSAI ID</label>
+            <input class="field-input" type="text" id="regBiz">
+            <label class="field-label" data-i18n="auth.biztype">Business type</label>
+            <input class="field-input" type="text" id="regBizType">
+          </div>
+          <button type="submit" class="btn-solid w-100 mt-3" id="regSubmit" data-i18n="auth.submit">Create account</button>
+          <p class="text-center mt-3" style="color:var(--muted);font-size:.88rem;">
+            <span data-i18n="auth.have">Already registered?</span>
+            <a href="#" class="switch-to-login" style="color:var(--leaf);font-weight:800;" data-i18n="auth.login">Log in</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade details-modal" id="detailsModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailsModalLabel"><i class="bi bi-check-circle"></i> <span id="detailsModalTitleText">Details</span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="detailsModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn-solid" data-bs-dismiss="modal" data-i18n="ok">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main id="top" class="page-wrap">
+  <section class="hero">
+    <div class="container">
+      <div class="row align-items-center gy-5">
+        <div class="col-lg-6">
+          <div class="kicker" data-i18n="hero.kicker">Direct farm trade</div>
+          <h1 class="hero-head"><span data-i18n="hero.head1">From field to first buyer,</span><br><em data-i18n="hero.head2">in one link.</em></h1>
+          <p class="hero-sub" data-i18n="hero.sub">AgriLink matches harvests to the right buyer and puts you in direct contact — no middlemen, no guesswork on price.</p>
+          <div class="hero-cta">
+            <button class="btn-solid" data-bs-toggle="modal" data-bs-target="#authPanel" data-role="farmer" data-i18n="hero.farmer">Register as a Farmer</button>
+            <button class="btn-outline" data-bs-toggle="modal" data-bs-target="#authPanel" data-role="buyer" data-i18n="hero.buyer">Register as a Buyer</button>
+          </div>
+          <div class="hero-stats">
+            <div><strong>3</strong><span data-i18n="stat.lang">Languages</span></div>
+            <div><strong>AI</strong><span data-i18n="stat.ai">Matched recommendations</span></div>
+            <div><strong>0</strong><span data-i18n="stat.zero">Middlemen in between</span></div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="stage">
+            <div class="ridge r1"></div><div class="ridge r2"></div><div class="ridge r3"></div>
+            <div class="float-chip chip-a">🌱 Farmer</div>
+            <div class="float-chip chip-b">✨ AI match</div>
+            <div class="float-chip chip-c">🛒 Buyer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="services" id="services">
+    <div class="container">
+      <h2 class="section-head" data-i18n="how.title">How AgriLink works</h2>
+      <p class="section-sub light" data-i18n="how.sub">Four stops between planting and payment. Follow the path.</p>
+      <div class="path-stops" id="how">
+        <div class="stop"><div class="stop-icon"><i class="bi bi-clipboard-check"></i></div><h3 data-i18n="how.s1">Register your farm</h3><p data-i18n="how.s1p">Add your land, location and basic details — takes about two minutes.</p></div>
+        <div class="stop"><div class="stop-icon"><i class="bi bi-cpu"></i></div><h3 data-i18n="how.s2">Get AI matched</h3><p data-i18n="how.s2p">Our model reads demand and price trends and recommends the right crop and market.</p></div>
+        <div class="stop"><div class="stop-icon"><i class="bi bi-people"></i></div><h3 data-i18n="how.s3">Connect with buyers</h3><p data-i18n="how.s3p">We find buyers whose quantity, location and price fit your harvest.</p></div>
+        <div class="stop"><div class="stop-icon"><i class="bi bi-graph-up-arrow"></i></div><h3 data-i18n="how.s4">Grow your reach</h3><p data-i18n="how.s4p">Build a track record, get repeat buyers, and expand beyond your district.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="buyer-strip">
+    <div class="container">
+      <div class="row align-items-center gy-4">
+        <div class="col-lg-7">
+          <h2 class="section-head" data-i18n="buy.strip">Sourcing? Skip the chain.</h2>
+          <p class="section-sub light" data-i18n="buy.sub">Register your business, tell us what you need, and AgriLink surfaces verified farmers who match.</p>
+          <ul class="check-list">
+            <li><i class="bi bi-check2"></i> <span data-i18n="buy.c1">Mobile OTP verification</span></li>
+            <li><i class="bi bi-check2"></i> <span data-i18n="buy.c2">Live crop listings from verified farmers</span></li>
+            <li><i class="bi bi-check2"></i> <span data-i18n="buy.c3">Direct contact, no broker fees</span></li>
+          </ul>
+        </div>
+        <div class="col-lg-5 text-lg-end">
+          <a class="btn-solid" href="/buyer" style="background:var(--harvest);color:var(--night);" data-i18n="buy.browse">Browse the marketplace</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="row gy-5">
+        <div class="col-lg-5">
+          <h2 class="section-head" data-i18n="contact.title">Talk to us</h2>
+          <p class="section-sub" data-i18n="contact.sub">Questions about registering, verifying a business, or a crop recommendation — write to us.</p>
+          <div style="margin-top:1.4rem;color:var(--muted);">
+            <div><i class="bi bi-envelope"></i> hello@agrilink.app</div>
+            <div><i class="bi bi-telephone"></i> +91 90000 12345</div>
+            <div><i class="bi bi-geo-alt"></i> Tirunelveli, Tamil Nadu, India</div>
+          </div>
+        </div>
+        <div class="col-lg-7">
+          <form class="contact-form glass-card" id="contactForm" onsubmit="return false;">
+            <div class="row gy-3">
+              <div class="col-md-6">
+                <label class="field-label" data-i18n="contact.name">Name</label>
+                <input class="field-input" type="text" id="cName" required>
+              </div>
+              <div class="col-md-6">
+                <label class="field-label" data-i18n="contact.reach">Mobile or email</label>
+                <input class="field-input" type="text" id="cContact" required>
+              </div>
+              <div class="col-12">
+                <label class="field-label" data-i18n="contact.topic">I am writing about</label>
+                <select class="field-input" id="cTopic">
+                  <option data-i18n="contact.t1">Registering as a farmer</option>
+                  <option data-i18n="contact.t2">Registering as a buyer</option>
+                  <option data-i18n="contact.t3">An AI recommendation</option>
+                  <option data-i18n="contact.t4">Something else</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="field-label" data-i18n="contact.msg">Message</label>
+                <textarea class="field-input" id="cMsg" rows="4"></textarea>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn-solid" id="contactSubmit" data-i18n="contact.send">Send message</button>
+                <span class="sent-note d-none" id="sentNote"><i class="bi bi-check-circle"></i> <span data-i18n="contact.sent">Message noted — we'll get back to you.</span></span>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-lg-4">
+        <a class="brand" href="#top"><span class="brand-mark">🌾</span><span class="brand-word" data-i18n="brand">AgriLink</span></a>
+        <p class="mt-3" data-i18n="foot.tag">An AI-powered path from field to first buyer.</p>
+      </div>
+      <div class="col-lg-3 col-6">
+        <h4 data-i18n="foot.platform">Platform</h4>
+        <a href="#services" data-i18n="nav.services">Services</a>
+        <a href="/buyer" data-i18n="nav.market">Marketplace</a>
+        <a href="/dashboard" data-i18n="nav.dashboard">Dashboard</a>
+      </div>
+      <div class="col-lg-3 col-6">
+        <h4 data-i18n="foot.start">Get started</h4>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#authPanel" data-role="farmer" data-i18n="hero.farmer">Register as a Farmer</a>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#authPanel" data-role="buyer" data-i18n="hero.buyer">Register as a Buyer</a>
+      </div>
+      <div class="col-lg-2">
+        <h4 data-i18n="foot.lang">Language</h4>
+        <p>தமிழ் · English · हिन्दी</p>
+      </div>
+    </div>
+    <hr>
+    <div data-i18n="foot.copy">© 2026 AgriLink. All rights reserved.</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/i18n.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var tabs = document.querySelectorAll('.auth-tab');
+  var forms = document.querySelectorAll('.auth-form');
+  function activateTab(name) {
+    tabs.forEach(function (t) { t.classList.toggle('active', t.dataset.tab === name); });
+    forms.forEach(function (f) { f.classList.toggle('active', f.dataset.form === name); });
+  }
+  tabs.forEach(function (tab) { tab.addEventListener('click', function () { activateTab(tab.dataset.tab); }); });
+  document.querySelectorAll('.switch-to-register').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); activateTab('register'); });
+  });
+  document.querySelectorAll('.switch-to-login').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); activateTab('login'); });
+  });
+  var farmerExtra = document.getElementById('farmerExtra');
+  var buyerExtra = document.getElementById('buyerExtra');
+  function setRole(role) {
+    document.querySelectorAll('input[name="regRole"]').forEach(function (r) { r.checked = (r.value === role); });
+    farmerExtra.classList.toggle('d-none', role !== 'farmer');
+    buyerExtra.classList.toggle('d-none', role !== 'buyer');
+  }
+  document.querySelectorAll('input[name="regRole"]').forEach(function (radio) {
+    radio.addEventListener('change', function () { if (radio.checked) setRole(radio.value); });
+  });
+  document.querySelectorAll('[data-bs-target="#authPanel"]').forEach(function (opener) {
+    opener.addEventListener('click', function () {
+      if (opener.dataset.role) { setRole(opener.dataset.role); activateTab('register'); }
+    });
+  });
+
+  var detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
+  function showDetailsModal(title, bodyHtml, isError) {
+    document.getElementById('detailsModalTitleText').textContent = title;
+    document.getElementById('detailsModalLabel').querySelector('i').className = isError ? 'bi bi-exclamation-circle' : 'bi bi-check-circle';
+    document.getElementById('detailsModalBody').innerHTML = bodyHtml;
+    detailsModal.show();
+  }
+  function detailsRow(label, value) {
+    return '<li><span>' + label + '</span><span>' + (value || '—') + '</span></li>';
+  }
+
+  document.querySelector('.auth-form[data-form="login"]').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var identifier = document.getElementById('loginId').value.trim();
+    var password = document.getElementById('loginPass').value;
+    var submitBtn = document.getElementById('loginSubmit');
+    if (!identifier || !password) {
+      showDetailsModal('Login Failed', '<p class="details-error-text">Enter your mobile/email and password.</p>', true);
+      return;
+    }
+    submitBtn.disabled = true;
+    fetch('/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier: identifier, password: password })
+    })
+      .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+      .then(function (result) {
+        submitBtn.disabled = false;
+        if (result.ok && result.data.success) {
+          localStorage.setItem('agrilink_user', JSON.stringify({ id: result.data.id, role: result.data.role, name: result.data.name }));
+          if (result.data.role === 'farmer') window.location.href = '/farmer/' + result.data.id;
+          else if (result.data.role === 'buyer') window.location.href = '/buyer/' + result.data.id;
+        } else {
+          showDetailsModal('Login Failed', '<p class="details-error-text">' + (result.data.error || 'Invalid login.') + '</p>', true);
+        }
+      })
+      .catch(function () {
+        submitBtn.disabled = false;
+        showDetailsModal('Login Failed', '<p class="details-error-text">Server not reachable.</p>', true);
+      });
+  });
+
+  document.querySelector('.auth-form[data-form="register"]').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var role = document.querySelector('input[name="regRole"]:checked').value;
+    var record = {
+      name: document.getElementById('regName').value.trim(),
+      mobile: document.getElementById('regMobile').value.trim(),
+      email: document.getElementById('regEmail').value.trim(),
+      location: document.getElementById('regLocation').value.trim(),
+      password: document.getElementById('regPass').value,
+      role: role,
+      landSize: role === 'farmer' ? document.getElementById('regLand').value.trim() : '',
+      crops: role === 'farmer' ? document.getElementById('regCrops').value.trim() : '',
+      businessId: role === 'buyer' ? document.getElementById('regBiz').value.trim() : '',
+      businessType: role === 'buyer' ? document.getElementById('regBizType').value.trim() : ''
+    };
+    var submitBtn = document.getElementById('regSubmit');
+    submitBtn.disabled = true;
+    fetch('/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(record) })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        submitBtn.disabled = false;
+        if (data.success) {
+          var rows = '<ul class="details-list">'
+            + detailsRow(AgriI18n.t('name'), record.name)
+            + detailsRow(AgriI18n.t('mobile'), record.mobile)
+            + detailsRow(AgriI18n.t('location'), record.location) + '</ul>';
+          showDetailsModal('Registration Successful', rows, false);
+          e.target.reset();
+          setRole('farmer');
+        } else {
+          showDetailsModal('Registration Failed', '<p class="details-error-text">' + (data.error || 'Could not save.') + '</p>', true);
+        }
+      })
+      .catch(function () {
+        submitBtn.disabled = false;
+        showDetailsModal('Registration Failed', '<p class="details-error-text">Server not reachable.</p>', true);
+      });
+  });
+
+  document.getElementById('contactForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    document.getElementById('sentNote').classList.remove('d-none');
+    e.target.reset();
+  });
+});
+</script>
+</body>
+</html>
